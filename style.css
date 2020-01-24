@@ -1,3 +1,24 @@
 #canvas {
     border: solid black 2px;
 }
+
+body {
+    align-items: center;
+    justify-content: center;
+}
+
+#settings-form{
+    width: 50%;
+    min-width: 300px;
+    margin: 0 auto;
+}
+
+#simulationSpeed {
+    direction: rtl;
+}
+
+#canvas-div {
+    width: 600px;
+    display: none;
+    margin: 0 auto;
+}
