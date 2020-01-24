@@ -8,7 +8,7 @@ const sandDensitySlider = document.getElementById('sandDensity');
 const simulationSpeedSlider = document.getElementById('simulationSpeed');
 const canvasDiv = document.getElementById('canvas-div');
 let simulationInterval;
-let arrayToWorkOn = [...sandContainers.hourglass];
+let arrayToWorkOn;
 let shapeOptions = Object.keys(sandContainers);
 const shapeOptionsSelect = document.getElementById('shapeOptionsSelect');
 console.log(shapeOptions);
@@ -19,10 +19,19 @@ shapeOptions.forEach(optionText => {
     shapeOptionsSelect.add(option);
 });
 
+const copyTwoDimArray = (array) => {
+    let newArray = []
+    for (var i = 0; i < array.length; i++) {
+        newArray[i] = [...array[i]];
+    }
+    return newArray;
+}
+
 const startSimulation = () => {
+    clearInterval(simulationInterval);
     sandDensity = sandDensitySlider.value;
     simulationSpeed = simulationSpeedSlider.value;
-    arrayToWorkOn = sandContainers[shapeOptionsSelect.value];
+    arrayToWorkOn = copyTwoDimArray(sandContainers[shapeOptionsSelect.value]);
     console.log(`Settings: sand density: ${sandDensity} simultion speed: ${simulationSpeed}`)
     settingsForm.style.display = "none";
     canvasDiv.style.display = "block";
@@ -34,10 +43,9 @@ const startSimulation = () => {
 const restartSimulation = () => {
     clearInterval(simulationInterval);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    arrayToWorkOn = [...sandContainers.dish]
-    drawTemplate(sandContainers.dish, "black");
-    generateSand(sandContainers.dish, sandColor);
-    console.log(sandContainers.dish);
+    arrayToWorkOn = copyTwoDimArray(sandContainers[shapeOptionsSelect.value]);
+    drawTemplate(arrayToWorkOn, "black");
+    generateSand(arrayToWorkOn, sandColor);
     simulationInterval = setInterval(simulation, simulationSpeed);
 }
 
