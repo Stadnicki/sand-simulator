@@ -35,7 +35,7 @@ const startSimulation = () => {
     console.log(`Settings: sand density: ${sandDensity} simultion speed: ${simulationSpeed}`)
     settingsForm.style.display = "none";
     canvasDiv.style.display = "block";
-    drawTemplate(arrayToWorkOn, "black");
+    drawFromArray(arrayToWorkOn);
     generateSand(arrayToWorkOn, sandColor);
     simulationInterval = setInterval(simulation, simulationSpeed);
 }
@@ -44,7 +44,7 @@ const restartSimulation = () => {
     clearInterval(simulationInterval);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     arrayToWorkOn = copyTwoDimArray(sandContainers[shapeOptionsSelect.value]);
-    drawTemplate(arrayToWorkOn, "black");
+    drawFromArray(arrayToWorkOn);
     generateSand(arrayToWorkOn, sandColor);
     simulationInterval = setInterval(simulation, simulationSpeed);
 }
@@ -52,19 +52,6 @@ const restartSimulation = () => {
 const showSettings = () => {
     settingsForm.style.display = "block";
     canvasDiv.style.display = "none";
-}
-
-const drawTemplate = (array, color) => {
-    ctx.fillStyle = color;
-    const xArraySize = array.length;
-    const yArraySize = array[0].length;
-    for(let x = 0; x < xArraySize; x++) {
-        for(let y = 0; y < yArraySize; y++) {
-            if(array[y][x] === 1) {
-                ctx.fillRect(x*10, y*10, 10, 10);
-            }
-        }
-    }
 }
 
 const drawFromArray = (array) => {
@@ -124,7 +111,7 @@ const shuffleArray = (array) => {
 
 const nextStep = (array) => {
     const options = [-1, 1];
-    const arrayCopy = array.slice();
+    const arrayCopy = [...array];
     const xArraySize = array.length;
     const yArraySize = array[0].length;
     let xArray = new Array(60);
