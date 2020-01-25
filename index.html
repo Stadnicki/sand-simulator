@@ -24,12 +24,32 @@
             </div>
 
             <div class="form-group row">
-                <label for="simulationSpeed">Simulation speed</label>
+                <label for="simulationSpeed">Simulation Speed</label>
                 <input type="range" class="custom-range mb-4" id="simulationSpeed">
             </div>
 
             <div class="form-group row">
-                <select id="shapeOptionsSelect" class="custom-select">
+                <div class="mr-4">
+                    <input type="color" id="sandColorInput"
+                           value="#c2b280">
+                    <label for="sandColorInput">Sand</label>
+                </div>
+                
+                <div class="mr-4">
+                    <input type="color" id="shapeColorInput"
+                            value="#000">
+                    <label for="shapeColorInput">Shape</label>
+                </div>
+
+                <div class="mr-4">
+                    <input type="color" id="backgroundColorInput"
+                            value="#ffffff">
+                    <label for="backgroundColorInput">Background</label>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <select id="shapeOptionsSelect" class="custom-select d-inline">
                 </select>
             </div>
 
