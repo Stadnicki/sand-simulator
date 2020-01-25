@@ -1,7 +1,6 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-let sandDensity = 30;
-let simulationSpeed = 30;
+
 const settingsForm = document.getElementById('settings-form');
 const sandDensitySlider = document.getElementById('sandDensity');
 const simulationSpeedSlider = document.getElementById('simulationSpeed');
@@ -9,18 +8,20 @@ const canvasDiv = document.getElementById('canvas-div');
 const sandColorInput = document.getElementById('sandColorInput');
 const shapeColorInput = document.getElementById('shapeColorInput');
 const backgroundColorInput = document.getElementById('backgroundColorInput');
+const shapeOptionsSelect = document.getElementById('shapeOptionsSelect');
+
+let sandDensity = 30;
+let simulationSpeed = 30;
 let sandColor = "#c2b280";
 let shapeColor = "black";
-let backgroundColor;
+let backgroundColor = "white";
 let simulationInterval;
 let arrayToWorkOn;
 let shapeOptions = Object.keys(sandContainers);
-const shapeOptionsSelect = document.getElementById('shapeOptionsSelect');
-console.log(shapeOptions);
 
-window.onload = function() {
+window.onload = () => {
     init();
-};
+}
 
 const init = () => {
     shapeOptions.forEach(optionText => {
@@ -28,7 +29,7 @@ const init = () => {
         option.text = optionText;
         shapeOptionsSelect.add(option);
     });
-};
+}
 
 const copyTwoDimArray = (array) => {
     let newArray = []
@@ -45,9 +46,7 @@ const prepareSimulation = () => {
     sandColor = sandColorInput.value;
     shapeColor = shapeColorInput.value;
     backgroundColor = backgroundColorInput.value;
-
     arrayToWorkOn = copyTwoDimArray(sandContainers[shapeOptionsSelect.value]);
-    console.log(`Settings: sand density: ${sandDensity} simultion speed: ${simulationSpeed}`)
 }
 
 const startSimulation = () => {
@@ -129,39 +128,53 @@ const shuffleArray = (array) => {
 
 const nextStep = (array) => {
     const options = [-1, 1];
-    const arrayCopy = [...array];
     const xArraySize = array.length;
     const yArraySize = array[0].length;
     let xArray = new Array(60);
     let currentX = 0;
-    for(let i = 0; i< 60; i++) {
-        xArray.push(i);
+    for(let i = 0; i < 60; i++) {
+        xArray[i] = i;
     }
     for(let y = yArraySize - 2; y >= 0; y--) {
+        shuffleArray(xArray);
         for(let x = 0; x < xArraySize; x++) {
-            shuffleArray(xArray);
             shuffleArray(options);
             currentX = xArray[x];
+            if(y === 0 || y === 1)
+                debugger;
             if(array[y][currentX] === 2) {
                 if(array[y+1][currentX] === 0) {
-                    arrayCopy[y][currentX] = 0;
-                    arrayCopy[y+1][currentX] = 2;
+                    array[y][currentX] = 0;
+                    array[y+1][currentX] = 2;
+
+                    drawRectangle(currentX, y, backgroundColor);
+                    drawRectangle(currentX, y + 1, sandColor);
+                }
+                else if(currentX < xArraySize &&
+                    array[y + 1][currentX + options[0]] === 0) {
+                        array[y][currentX] = 0;
+                        array[y + 1][currentX + options[0]] = 2;
+
+                        drawRectangle(currentX, y, backgroundColor);
+                        drawRectangle(currentX + options[0], (y+1), sandColor);
                 } 
-                else if(currentX < xArraySize && array[y + 1][currentX + options[0]] === 0 && arrayCopy[y + 1][currentX + options[0]] !== 2) {
-                    arrayCopy[y][currentX] = 0;
-                    arrayCopy[y + 1][currentX + options[0]] = 2;
-                } 
-                else if(xArraySize > 0 && array[y + 1][currentX + options[1]] === 0 && arrayCopy[y + 1][currentX + options[1]] !== 2) {
-                    arrayCopy[y][currentX] = 0;
-                    arrayCopy[y + 1][currentX + options[1]] = 2;
+                else if(xArraySize > 0 && array[y + 1][currentX + options[1]] === 0) {
+                        array[y][currentX] = 0;
+                        array[y + 1][currentX + options[1]] = 2;
+
+                        drawRectangle(currentX, y, backgroundColor);
+                        drawRectangle(currentX + options[1], y + 1, sandColor);
                 }
             }
         }
     }
-    return arrayCopy;
+}
+
+const drawRectangle = (x, y, color) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x*10, y*10, 10, 10);
 }
 
 const simulation = () => {
-    arrayToWorkOn = nextStep(arrayToWorkOn);
-    drawFromArray(arrayToWorkOn);
+    nextStep(arrayToWorkOn);
 }
