@@ -23,6 +23,18 @@ window.onload = () => {
     init();
 }
 
+const margolusTransformation = {
+    '0020': '2000',
+    '0002': '0200',
+    '2020': '0220',
+    '0220': '2200',
+    '2002': '2200',
+    '0202': '2200',
+    '2022': '2220',
+    '0222': '2202',
+    '0022': '2200'
+}
+
 const init = () => {
     shapeOptions.forEach(optionText => {
         let option = document.createElement("option");
@@ -70,26 +82,30 @@ const showSettings = () => {
     canvasDiv.style.display = "none";
 }
 
+const printCell = (array, x, y) => {
+    switch(array[y][x]) {
+        case 1:
+            ctx.fillStyle = shapeColor;
+            ctx.fillRect(x*10, y*10, 10, 10);
+            break;
+        case 2:
+            ctx.fillStyle = sandColor;
+            ctx.fillRect(x*10, y*10, 10, 10);
+            break;
+        case 0:
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(x*10, y*10, 10, 10);
+            break;
+    }
+}
+
 const drawFromArray = (array) => {
     const xArraySize = array.length;
     const yArraySize = array[0].length;
 
     for(let x = 0; x < xArraySize; x++) {
         for(let y = 0; y < yArraySize; y++) {
-            switch(array[y][x]) {
-                case 1:
-                    ctx.fillStyle = shapeColor;
-                    ctx.fillRect(x*10, y*10, 10, 10);
-                    break;
-                case 2:
-                    ctx.fillStyle = sandColor;
-                    ctx.fillRect(x*10, y*10, 10, 10);
-                    break;
-                case 0:
-                    ctx.fillStyle = backgroundColor;
-                    ctx.fillRect(x*10, y*10, 10, 10);
-                    break;
-            }
+            printCell(array, x, y);
         }
     }
 }
@@ -123,6 +139,41 @@ const shuffleArray = (array) => {
         const temp = array[i]
         array[i] = array[j]
         array[j] = temp
+    }
+}
+
+const updateMargolusCell = (sourceArray, cellArray) => {
+    cellArray.forEach(coords => {
+        printCell(sourceArray, coords[0], coords[1])
+    });
+} 
+
+const margolusNeighborhoodNextStep = (array) => {
+    const options = [-1, 1];
+    const xArraySize = array.length;
+    const yArraySize = array[0].length;
+    let xArray = new Array(60);
+    let currentX = 0;
+    for(let y = yArraySize - 1; y > 0; y --) {
+        shuffleArray(xArray);
+        for(let x = 0; x < xArraySize - 1; x++) {
+            shuffleArray(options);
+            currentX = xArray[x];
+            const currentCell = '' + array[y][x] + array[y][x+1] + array[y-1][x] + array[y-1][x+1];    
+            if(currentCell in margolusTransformation) {
+                debugger;
+                let a = parseInt(margolusTransformation[currentCell][0])
+                array[y][x] = a;
+                let b = parseInt(margolusTransformation[currentCell][1])
+                array[y][x+1] = b;
+                let c = parseInt(margolusTransformation[currentCell][2])
+                array[y-1][x] = c;
+                let xd = array[x][y-1];
+                let d = parseInt(margolusTransformation[currentCell][3])
+                array[y-1][x+1] = d;
+                updateMargolusCell(array, [[x, y], [x+1, y], [x, y-1], [x+1, y-1]]);
+            }
+        }
     }
 }
 
@@ -176,5 +227,5 @@ const drawRectangle = (x, y, color) => {
 }
 
 const simulation = () => {
-    nextStep(arrayToWorkOn);
+    margolusNeighborhoodNextStep(arrayToWorkOn);
 }
