@@ -9,7 +9,9 @@ const sandColorInput = document.getElementById('sandColorInput');
 const shapeColorInput = document.getElementById('shapeColorInput');
 const backgroundColorInput = document.getElementById('backgroundColorInput');
 const shapeOptionsSelect = document.getElementById('shapeOptionsSelect');
+const algorithmOptionsSelect = document.getElementById('algorithmOptionsSelect');
 
+let nextStepFunction;
 let sandDensity = 30;
 let simulationSpeed = 30;
 let sandColor = "#c2b280";
@@ -53,6 +55,14 @@ const copyTwoDimArray = (array) => {
 
 const prepareSimulation = () => {
     clearInterval(simulationInterval);
+    switch(algorithmOptionsSelect.value) {
+        case 'margolus':
+            nextStepFunction = margolusNeighborhoodNextStep;
+            break;
+        case 'stadnicki':
+            nextStepFunction = nextStep;
+            break;
+    }
     sandDensity = sandDensitySlider.value;
     simulationSpeed = simulationSpeedSlider.value;
     sandColor = sandColorInput.value;
@@ -149,28 +159,16 @@ const updateMargolusCell = (sourceArray, cellArray) => {
 } 
 
 const margolusNeighborhoodNextStep = (array) => {
-    const options = [-1, 1];
     const xArraySize = array.length;
     const yArraySize = array[0].length;
-    let xArray = new Array(60);
-    let currentX = 0;
     for(let y = yArraySize - 1; y > 0; y --) {
-        shuffleArray(xArray);
         for(let x = 0; x < xArraySize - 1; x++) {
-            shuffleArray(options);
-            currentX = xArray[x];
             const currentCell = '' + array[y][x] + array[y][x+1] + array[y-1][x] + array[y-1][x+1];    
             if(currentCell in margolusTransformation) {
-                debugger;
-                let a = parseInt(margolusTransformation[currentCell][0])
-                array[y][x] = a;
-                let b = parseInt(margolusTransformation[currentCell][1])
-                array[y][x+1] = b;
-                let c = parseInt(margolusTransformation[currentCell][2])
-                array[y-1][x] = c;
-                let xd = array[x][y-1];
-                let d = parseInt(margolusTransformation[currentCell][3])
-                array[y-1][x+1] = d;
+                array[y][x] = parseInt(margolusTransformation[currentCell][0]);
+                array[y][x+1] = parseInt(margolusTransformation[currentCell][1]);
+                array[y-1][x] = parseInt(margolusTransformation[currentCell][2]);
+                array[y-1][x+1] = parseInt(margolusTransformation[currentCell][3]);
                 updateMargolusCell(array, [[x, y], [x+1, y], [x, y-1], [x+1, y-1]]);
             }
         }
@@ -227,5 +225,5 @@ const drawRectangle = (x, y, color) => {
 }
 
 const simulation = () => {
-    margolusNeighborhoodNextStep(arrayToWorkOn);
+    nextStepFunction(arrayToWorkOn);
 }
