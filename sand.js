@@ -10,6 +10,7 @@ const shapeColorInput = document.getElementById('shapeColorInput');
 const backgroundColorInput = document.getElementById('backgroundColorInput');
 const shapeOptionsSelect = document.getElementById('shapeOptionsSelect');
 const algorithmOptionsSelect = document.getElementById('algorithmOptionsSelect');
+let boundaryAbsorbing = false;
 
 let nextStepFunction;
 let sandDensity = 30;
@@ -37,6 +38,17 @@ const margolusTransformation = {
     '0022': '2200'
 }
 
+const margolusTransformationForBoundaryAbsorbing = {
+    ...margolusTransformation,
+    '1122': '1100',
+    '1020': '1000',
+    '0102': '0100',
+    '1121': '1101',
+    '1112': '1110',
+    '1102': '1100',
+    '1120': '1100'
+}
+
 const init = () => {
     shapeOptions.forEach(optionText => {
         let option = document.createElement("option");
@@ -57,10 +69,16 @@ const prepareSimulation = () => {
     clearInterval(simulationInterval);
     switch(algorithmOptionsSelect.value) {
         case 'margolus':
+            boundaryAbsorbing = false;
             nextStepFunction = margolusNeighborhoodNextStep;
             break;
         case 'stadnicki':
+            boundaryAbsorbing = false;
             nextStepFunction = nextStep;
+            break;
+        case 'boundary':
+            boundaryAbsorbing = true;
+            nextStepFunction = margolusNeighborhoodNextStep;
             break;
     }
     sandDensity = sandDensitySlider.value;
@@ -161,14 +179,16 @@ const updateMargolusCell = (sourceArray, cellArray) => {
 const margolusNeighborhoodNextStep = (array) => {
     const xArraySize = array.length;
     const yArraySize = array[0].length;
+    let margolusMap;
+    margolusMap = boundaryAbsorbing ? margolusTransformationForBoundaryAbsorbing : margolusTransformation;
     for(let y = yArraySize - 1; y > 0; y --) {
         for(let x = 0; x < xArraySize - 1; x++) {
             const currentCell = '' + array[y][x] + array[y][x+1] + array[y-1][x] + array[y-1][x+1];    
-            if(currentCell in margolusTransformation) {
-                array[y][x] = parseInt(margolusTransformation[currentCell][0]);
-                array[y][x+1] = parseInt(margolusTransformation[currentCell][1]);
-                array[y-1][x] = parseInt(margolusTransformation[currentCell][2]);
-                array[y-1][x+1] = parseInt(margolusTransformation[currentCell][3]);
+            if(currentCell in margolusMap) {
+                array[y][x] = parseInt(margolusMap[currentCell][0]);
+                array[y][x+1] = parseInt(margolusMap[currentCell][1]);
+                array[y-1][x] = parseInt(margolusMap[currentCell][2]);
+                array[y-1][x+1] = parseInt(margolusMap[currentCell][3]);
                 updateMargolusCell(array, [[x, y], [x+1, y], [x, y-1], [x+1, y-1]]);
             }
         }
